@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1084967684801",
+    "firebase_url": "https://androidqrcodefirebase-ef0fe.firebaseio.com",
+    "project_id": "androidqrcodefirebase-ef0fe",
+    "storage_bucket": "androidqrcodefirebase-ef0fe.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1084967684801:android:f0b68f63fa4d5f81",
+        "android_client_info": {
+          "package_name": "com.example.pranav.androidqrcodefirebase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1084967684801-12vupuhqdu58495tos9ek9c7seqib3dh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.pranav.androidqrcodefirebase",
+            "certificate_hash": "60e7de48c4a19e1b254eca023a311d8d947a0932"
+          }
+        },
+        {
+          "client_id": "1084967684801-e5b0j8b0kd1egpp2e6euv87rhjdslrv9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDo1iOmMSvMwZTfH0tv3hDLmx91o0thJPU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1084967684801-e5b0j8b0kd1egpp2e6euv87rhjdslrv9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
