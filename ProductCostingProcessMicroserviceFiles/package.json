@@ -1,0 +1,19 @@
+{
+  "name": "productcostingprocessmicroservicefiles",
+  "version": "1.0.0",
+  "main": "prdctcst_ms.js",
+  "scripts": {
+    "start": "node prdctcst_ms.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.19.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.6.5",
+    "nodemon": "^1.19.1"
+  },
+  "devDependencies": {},
+  "description": ""
+}
