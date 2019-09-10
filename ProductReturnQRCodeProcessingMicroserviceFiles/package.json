@@ -1,0 +1,25 @@
+{
+  "name": "productreturnqrcodeprocessingmicroservicefiles",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "nodemon main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.19.0",
+    "exif": "^0.6.0",
+    "express": "^4.17.1",
+    "html-to-image": "^0.1.1",
+    "mongoose": "^5.6.11",
+    "multer": "^1.4.2",
+    "nodemon": "^1.19.1",
+    "qr-image": "^3.2.0",
+    "qrcode": "^1.4.1",
+    "qrcode-generator": "^1.4.3",
+    "random": "^2.1.1"
+  }
+}
