@@ -2,10 +2,6 @@ var express = require("express");
 var bodyParser = require("body-parser");
 var app = express();
 const fs = require('fs');
-var multer = require('multer');
-const htmlToImage = require('html-to-image');
-
-//var qrcode = new QRCode ("qrcode");
 const mongodb = require('mongodb');
 const mongoose = require('mongoose');
 const Mongoclient = mongodb.MongoClient
@@ -15,34 +11,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 const IncomingShipment = require('./ModelFiles/IncomingShipment');
 const OutgoingShipment = require('./ModelFiles/OutgoingShipment');
-//const ProductsReturned = require('./ModelFiles/ProductsReturned');
 const random = require('random')
 
 var QRCode = require('qrcode');
-var qrcode = require('qrcode-generator');
-//var Grid = require('gridfs');
-//var gfs = Grid(mongoose.connection.db, mongoose.mongo);
-var fileId = new mongoose.mongo.ObjectId();
 
-//var express = require('express');
-//var connect = express();
-
-/*
-app.get('/', function(req, res) {
-    res.writeHead(200, { 'Content-Type': 'text/html' });
-
-    var sometext='hi my name is saurav ghadai';
-
-// QRCode.QRCodeDraw.color.dark = '#d4d4d4';
-    QRCode.toDataURL(sometext, function (err, url) {
-        if (err) console.log('error: ' + err)
-        fs.writeFileSync('./qr.html', `<img src="${url}">`);
-        console.log('Wrote to ./qr.html');
-    });
-    
-});
-*/
-
+// This queries my incoming bulk package shipment data from MongoDB.
 function bulkPackageData() {
     return IncomingShipment.find()
         .then(incomingshipments => {
@@ -58,17 +31,21 @@ function bulkPackageData() {
 }
 
 app.post('/incoming', async function(req,res) {
+    // This deletes the current collection in MongoDB everytime this server is run again. 
+    // This is so duplicates don't constantly get created every time the server is tested.
     mongoose.connection.db.dropCollection('outgoingshipments', function(err, result) {
         console.log("deleted");
     });
     Mongoclient.connect('mongodb+srv://root:password1234@mycluster-1yve4.gcp.mongodb.net/test?retryWrites=true&w=majority', {useNewUrlParser: true}, async function(err,client){
         incomingArray = await bulkPackageData();
         console.log(incomingArray[0].BatchID);
-    var packages = incomingArray[0].incomingquantity/incomingArray[0].outgoingquantity;
-    qrCodeImage = [];
-        for (let i = 0; i < packages; i++) {
-            //var temp = incomingshipments[0];
-    
+        // This is a calculation of the number of packets the bulk shipment is going to be split up into.
+        // It uses the manufacturer data from the bulk shipment, stating the incoming quantity and outgoing
+        // quantity.
+        var packages = incomingArray[0].incomingquantity/incomingArray[0].outgoingquantity;
+        // This loops over the number of packages, and creates JSON data with all the manufacturer info,
+        // along with a randomly-generated consumer serial number. 
+        for (let i = 0; i < packages; i++) {    
             var temp = {
                 "MFRID": incomingArray[0].MFRID,
                 "BatchID": incomingArray[0].BatchID,
@@ -78,31 +55,15 @@ app.post('/incoming', async function(req,res) {
                 "outgoingquantity": incomingArray[0].outgoingquantity,
                 "UoM": incomingArray[0].UoM,
                 "consumerserialnum": random.int(min = 10000000, max = 99999999),
-                //"qrCode":qrCodeImage,
             };
+            // This is the url that will be created for each QR Code to store and point to the appropriate data.
             var link = "127.0.0.1:3000/item/" + temp.consumerserialnum
-
-            /*
-            gfs.writeFile({_id: fileId, content_type : 'image/png'}, image, function (err, file) {
-                console.log(file);
-            });
-            
-            var storage = multer.diskStorage({
-                destination: function (req, file, callback) {
-                    callback(null, "./uploads");
-                },
-                filename: function (req, file, callback) {
-                    callback(null. file.fieldname + "_" + Date.now() + "_" + file.originalname);
-                }
-            });
-
-            var upload = multer({storage: storage}).single('avatar');
-            */
-
+            // This is the QR Code library and function that will create the QR Code as an HTML file. 
             QRCode.toDataURL(link, function (err, qrcodeurl) {
                 if (err) console.log('error: ' + err)
                 fs.writeFileSync('./qr.html', `<img src="${qrcodeurl}">`);
                 console.log('Wrote to ./qr.html');
+                // This identifies the particular database and collection, to store the outgoing shipments QR Codes and respective data to. 
                 let db = client.db("test");
                 let collection = db.collection("outgoingshipments");
                 collection.insertOne(
@@ -125,58 +86,23 @@ app.post('/incoming', async function(req,res) {
                         console.log("uploaded");
                     }
                 }
-                
             });
-
-            
-            //qrCodeImage[qrCodeImage.length] = url;
         }
-    
     });
-
-
-    // //res.send(incomingshipments);
-    // for (let j = 0; j < qrCodeImage.length; j++) {
-    //     let doc = new OutgoingShipment({
-    //         "MFRID": incomingArray[0].MFRID,
-    //         "BatchID": incomingArray[0].BatchID,
-    //         "LogID": incomingArray[0].LogID,
-    //         "ProductSerialNumber": incomingArray[0].ProductSerialNumber,
-    //         "incomingquantity": incomingArray[0].incomingquantity,
-    //         "outgoingquantity": incomingArray[0].outgoingquantity,
-    //         "UoM": incomingArray[0].UoM,
-    //         "consumerserialnum": random.int(min = 10000000, max = 99999999),
-    //         "qrCode":qrCodeImage[j],
-    //     });
-    //     /*
-    //     app.use(multer({ dest: "./uploads/",
-    //         rename: function (fieldname, filename) {
-    //           return filename;
-    //         },
-    //        }));
-        
-    //     doc.qrCode.img.data = fs.readFileSync(req.files.userPhoto.path);
-    //     doc.qrCode.img.contentType = "image/png";
-
-    //     doc.save().then(() => {
-    //         console.log("Saved in DataBase.")
-    //     });
-    //     */
-    // }
 });
 
 app.get('/item/:consumerserialnum', (req,res)=>{
-    //query data
-    //res.send(data)'
     Mongoclient.connect('mongodb+srv://root:password1234@mycluster-1yve4.gcp.mongodb.net/test?retryWrites=true&w=majority', {useNewUrlParser: true}, async function(err,client){
 
+    // This identifies the particular database and collection, in order to query and retrieve the QR Codes for 
+    // situation of an item getting returned or recalled. 
     let db = client.db("test");
     let collection = db.collection("outgoingshipments");
         collection.find({}).toArray((err,doc) => {
-            //outgoingshipments[i]
             if (err) {
                 console.log("error in finding the document:", err)
             }
+            // If there is no error, write the file to a qrcode.html file, to retrieve the QR Code for a returned product. 
             else {
                 let buffer =doc[0].file.buffer
                 fs.writeFileSync('qrcode.html', buffer);
@@ -185,8 +111,7 @@ app.get('/item/:consumerserialnum', (req,res)=>{
     });
 });
 
-//third collection name: "productsreturned"
-
+// This is the function that queries the outgoing shipments collection for returned items.
 function returnData(consum) {
     return OutgoingShipment.find({"consumerserialnum": consum})
         .then(outgoingshipments => {
@@ -201,13 +126,10 @@ function returnData(consum) {
 }
 
 app.post('/return', async function (req, res) {
-    
+    // This HTTP request stores the data for a returned item into a collection for returned items.
     Mongoclient.connect('mongodb+srv://root:password1234@mycluster-1yve4.gcp.mongodb.net/test?retryWrites=true&w=majority', {useNewUrlParser: true}, async function(err,client){
+        // This is the call to the function that queries the outgoingshipments collection for returned items.
         returnArray = await returnData(req.body.consumerserialnum);   
-        //console.log(returnArray);
-        //console.log(returnArray[0]);
-        //console.log(returnArray[0].MFRID);
-
         let db = client.db("test");
         let collection = db.collection("productsreturned");
         collection.insertOne(
@@ -232,18 +154,6 @@ app.post('/return', async function (req, res) {
         }
     });
 });
-/*
-app.get('/incoming',function(req,res) {
-    var typeNumber = 4;
-    var errorCorrectionLevel = 'L';
-    var qr = qrcode(typeNumber, errorCorrectionLevel);
-    qr.addData('Hi!');
-    qr.make();
-    fs.writeFileSync('./qr.html', qr.createImgTag());
-    console.log('Wrote to ./qr.html');
-    res.send("Saved");
-});
-*/
 
 var server = app.listen(3000, function () {
     console.log("app running on port.", server.address().port);
