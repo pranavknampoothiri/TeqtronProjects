@@ -8,6 +8,8 @@ var app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+// This is the main file being run for the Product Cost Calculation Microservice,
+// using the three main routes below, in the order as listed.
 app.use(products);
 app.use(prices);
 app.use(calcs);
